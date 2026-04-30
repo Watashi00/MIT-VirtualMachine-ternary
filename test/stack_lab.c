@@ -36,20 +36,25 @@ void program_flux_test(int* program, Stack* stack) {
                 t.size = size;
                 for (int i = 0; i < size; i++) {
                     t.trits[i] = program[pc++];
-                    printf("Executing PUSH %d\n", size);
+                    push(stack, t);   
                 }
+                printf("Executing PUSH %d\n", size);
                 break;
             }
 
             case ADD: {
-                trit a, b;
-                printf("Executing ADD (%d + %d)\n", a, b);
+                Ternary a, b;
+                pop(stack, &a);
+                pop(stack, &b);
+                Ternary result = ternary_add(a, b);
+                ternary_print(result);
                 break;
             }
 
             case POP: {
-                trit value;
-                printf("Executing POP %d\n", value);
+                Ternary value;
+                pop(stack, &value);
+                ternary_print(value);
                 break;
             }
             case HALT:
@@ -68,7 +73,7 @@ Ternary ternary_add(Ternary a, Ternary b) {
 
     int max = (a.size > b.size) ? a.size : b.size;
 
-    for (int i = 0; i < MAX_TRITS; i++) {
+    for (int i = 0; i < max; i++) {
         int ta = (i < a.size) ? a.trits[i] : 0;
         int tb = (i < b.size) ? b.trits[i] : 0;
 
@@ -90,7 +95,16 @@ Ternary ternary_add(Ternary a, Ternary b) {
         result.trits[max++] = carry;
     }
 
+    result.size = max;
     return result;
+}
+
+void ternary_print(Ternary t) {
+    printf("Ternary: ");
+    for (int i = 0; i < t.size; i++) {
+        printf("%d ", t.trits[i]);
+    }
+    printf("\n");
 }
 
 
