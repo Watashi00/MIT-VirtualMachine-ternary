@@ -1,55 +1,98 @@
 #include <stdio.h>
 #include "stack.h"
 #include "opcodes.h"
+#include "ternary.h"
 
 void sum(int* a, int* b, int* result);
 void stack_complete_test();
+    //OP_CODE, [trits...]
+int program[] = {
+    PUSH, 3, 1, 0, 1,
+    PUSH, 2, 1, -1,
+    ADD,
+    POP,
+    HALT
+};
+void program_flux_test(int* program, Stack* stack);
+
+
+Stack stack = { .top = 0 };
 
 int main() {
-    program_flux_test();
+    program_flux_test(program, &stack);
     return 0;
 }
 
-void program_flux_test() {
-    int program[] = {
-        PUSH, 5,
-        PUSH, 10,
-        ADD,
-        POP,
-        HALT
-    };
+void program_flux_test(int* program, Stack* stack) {
+    int pc = 0;
+
+    while (1) {
+        int opcode = program[pc++];
+        switch (opcode) {
+            case PUSH: {
+                int size = program[pc++];
+
+                Ternary t;
+                t.size = size;
+                for (int i = 0; i < size; i++) {
+                    t.trits[i] = program[pc++];
+                    printf("Executing PUSH %d\n", size);
+                }
+                break;
+            }
+
+            case ADD: {
+                trit a, b;
+                printf("Executing ADD (%d + %d)\n", a, b);
+                break;
+            }
+
+            case POP: {
+                trit value;
+                printf("Executing POP %d\n", value);
+                break;
+            }
+            case HALT:
+                printf("Halting program execution.\n");
+                return;
+            default:
+                printf("Unknown opcode: 0x%02X\n", opcode);
+                return;
+        }
+    }
 }
 
-void stack_complete_test() {
-    Stack stack = { .top = 0 };
-    for(int i = 0; i < 100; i++) {
-        int j = i * 2;
-        printf("i: %d, j: %d\n", i, j);
-        push(&stack, j);
+Ternary ternary_add(Ternary a, Ternary b) {
+    Ternary result;
+    int carry = 0;
+
+    int max = (a.size > b.size) ? a.size : b.size;
+
+    for (int i = 0; i < MAX_TRITS; i++) {
+        int ta = (i < a.size) ? a.trits[i] : 0;
+        int tb = (i < b.size) ? b.trits[i] : 0;
+
+        int sum = ta + tb + carry;
+
+        if (sum > 1) {
+            result.trits[i] = sum - 3;
+            carry = 1;
+        } else if (sum < -1) {
+            result.trits[i] = sum + 3;
+            carry = -1;
+        } else {
+            result.trits[i] = sum;
+            carry = 0;
+        }
     }
 
-    print_stack(&stack);
-
-    int has_prev = 0;
-    int prev;
-    for(int i = 0; i < 100; i++) {
-        int value;
-        if (pop(&stack, &value) == -1) {
-            printf("Error: Stack underflow\n");
-            break;
-        }
-        if (has_prev) {
-            int result;
-            sum(&prev, &value, &result);
-            printf("Sum of %d and %d is %d\n", prev, value, result);
-        }
-        prev = value;
-        has_prev = 1;
-        printf("Popped value: %d\n", value);
+    if (carry != 0) {
+        result.trits[max++] = carry;
     }
 
-    print_stack(&stack);
+    return result;
 }
+
 
 void sum(int* a, int* b, int* result) {
     printf("Summing %d and %d\n", *a, *b);
