@@ -5,6 +5,7 @@
 
 void sum(int* a, int* b, int* result);
 void stack_complete_test();
+int ternary_to_int(Ternary t);
     //OP_CODE, [trits...]
 int program[] = {
     PUSH, 3, 1, 0, 1,
@@ -36,24 +37,29 @@ void program_flux_test(int* program, Stack* stack) {
                 t.size = size;
                 for (int i = 0; i < size; i++) {
                     t.trits[i] = program[pc++];
-                    push(stack, t);   
+                    printf("Reading trit %d\n", t.trits[i]);
                 }
+                push(stack, t);   
                 printf("Executing PUSH %d\n", size);
                 break;
             }
 
             case ADD: {
                 Ternary a, b;
-                pop(stack, &a);
                 pop(stack, &b);
+                pop(stack, &a);
                 Ternary result = ternary_add(a, b);
-                ternary_print(result);
+                printf("Executing ADD\n");
+                int result_int = ternary_to_int(result);
+                printf("Result of addition: %d\n", result_int);
+                push(stack, result);
                 break;
             }
 
             case POP: {
                 Ternary value;
                 pop(stack, &value);
+                printf("Executing POP\n");
                 ternary_print(value);
                 break;
             }
@@ -65,6 +71,33 @@ void program_flux_test(int* program, Stack* stack) {
                 return;
         }
     }
+}
+
+Ternary ternary_from_int(int value) {
+    Ternary t;
+    t.size = 0;
+
+    while (value != 0 && t.size < MAX_TRITS) {
+        int rem = value % 3;
+        value /= 3;
+        if (rem == 2) {
+            rem = -1;
+            value += 1;
+        }
+        t.trits[t.size++] = rem;
+    }
+
+    return t;
+}
+
+int ternary_to_int(Ternary t) {
+    int result = 0;
+    int power = 1;
+    for (int i = 0; i < t.size; i++) {
+        result += t.trits[i] * power;
+        power *= 3;
+    }
+    return result;
 }
 
 Ternary ternary_add(Ternary a, Ternary b) {
@@ -100,11 +133,11 @@ Ternary ternary_add(Ternary a, Ternary b) {
 }
 
 void ternary_print(Ternary t) {
-    printf("Ternary: ");
-    for (int i = 0; i < t.size; i++) {
+    printf("(trit= ");
+    for (int i = t.size - 1; i >= 0; --i) {
         printf("%d ", t.trits[i]);
     }
-    printf("\n");
+    printf(")\n");
 }
 
 
