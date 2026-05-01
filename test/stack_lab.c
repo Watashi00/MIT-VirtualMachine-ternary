@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include "stack.h"
-#include "opcodes.h"
+#include "../ternary_os/isa/opcodes.h"
 #include "ternary.h"
 
-void sum(int* a, int* b, int* result);
-void stack_complete_test();
 int ternary_to_int(Ternary t);
     //OP_CODE, [trits...]
 int program[] = {
@@ -14,6 +12,7 @@ int program[] = {
     POP,
     HALT
 };
+
 void program_flux_test(int* program, Stack* stack);
 
 
@@ -139,9 +138,3 @@ void ternary_print(Ternary t) {
     }
     printf(")\n");
 }
-
-
-void sum(int* a, int* b, int* result) {
-    printf("Summing %d and %d\n", *a, *b);
-    *result = *a + *b;
-};
