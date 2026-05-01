@@ -1,11 +1,12 @@
-#include <stdio.h>
-#include "stack.h"
 #include "../ternary_os/isa/opcodes.h"
-#include "ternary.h"
+#include "../ternary_os/isa/ternary.h"
+#include "../ternary_os/alu/operations.h"
+#include "stack.h"
+#include "stdout.h"
 
-int ternary_to_int(Ternary t);
+int ternary_to_int(Ternary t); // TODO: Move to ternary.c and implement in ternary.c before all ALU basic operations; TODO Writer: Watashi00 
     //OP_CODE, [trits...]
-int program[] = {
+int program[] = {              // TODO: Remove this test program and replace with valid assembly code (ternary assembler) before all ALU basic operations; TODO Writer: Watashi00
     PUSH, 3, 1, 0, 1,
     PUSH, 2, 1, -1,
     ADD,
@@ -14,7 +15,6 @@ int program[] = {
 };
 
 void program_flux_test(int* program, Stack* stack);
-
 
 Stack stack = { .top = 0 };
 
@@ -36,10 +36,12 @@ void program_flux_test(int* program, Stack* stack) {
                 t.size = size;
                 for (int i = 0; i < size; i++) {
                     t.trits[i] = program[pc++];
-                    printf("Reading trit %d\n", t.trits[i]);
+                    out_str("Reading trit ");
+                    out_int(t.trits[i]);
+                    out_str("\n");
                 }
                 push(stack, t);   
-                printf("Executing PUSH %d\n", size);
+                out_str("Executing PUSH\n");
                 break;
             }
 
@@ -48,9 +50,14 @@ void program_flux_test(int* program, Stack* stack) {
                 pop(stack, &b);
                 pop(stack, &a);
                 Ternary result = ternary_add(a, b);
-                printf("Executing ADD\n");
+                ternary_print(a);
+                ternary_print(b);
+                ternary_print(result);
+                out_str("Executing ADD\n");
                 int result_int = ternary_to_int(result);
-                printf("Result of addition: %d\n", result_int);
+                out_str("Result of ADD in integer: ");
+                out_int(result_int);
+                out_char('\n');
                 push(stack, result);
                 break;
             }
@@ -58,15 +65,17 @@ void program_flux_test(int* program, Stack* stack) {
             case POP: {
                 Ternary value;
                 pop(stack, &value);
-                printf("Executing POP\n");
+                out_str("Executing POP\n");
                 ternary_print(value);
                 break;
             }
             case HALT:
-                printf("Halting program execution.\n");
+                out_str("Halting program execution.\n");
                 return;
             default:
-                printf("Unknown opcode: 0x%02X\n", opcode);
+                out_str("Unknown opcode: ");
+                out_int(opcode);
+                out_char('\n');
                 return;
         }
     }
@@ -99,42 +108,13 @@ int ternary_to_int(Ternary t) {
     return result;
 }
 
-Ternary ternary_add(Ternary a, Ternary b) {
-    Ternary result;
-    int carry = 0;
 
-    int max = (a.size > b.size) ? a.size : b.size;
-
-    for (int i = 0; i < max; i++) {
-        int ta = (i < a.size) ? a.trits[i] : 0;
-        int tb = (i < b.size) ? b.trits[i] : 0;
-
-        int sum = ta + tb + carry;
-
-        if (sum > 1) {
-            result.trits[i] = sum - 3;
-            carry = 1;
-        } else if (sum < -1) {
-            result.trits[i] = sum + 3;
-            carry = -1;
-        } else {
-            result.trits[i] = sum;
-            carry = 0;
-        }
-    }
-
-    if (carry != 0) {
-        result.trits[max++] = carry;
-    }
-
-    result.size = max;
-    return result;
-}
 
 void ternary_print(Ternary t) {
-    printf("(trit= ");
+    out_str("(trit= ");
     for (int i = t.size - 1; i >= 0; --i) {
-        printf("%d ", t.trits[i]);
+        out_int(t.trits[i]);
+        out_char(' ');
     }
-    printf(")\n");
+    out_str(")\n");
 }
