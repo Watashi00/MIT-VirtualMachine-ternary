@@ -13,8 +13,8 @@ typedef struct {
 } Ternary;
 
 int ternary_to_int(Ternary t);
+void ternary_print(Ternary t);
 Ternary ternary_from_int(int value);
 Ternary ternary_add(Ternary a, Ternary b);
-void ternary_print(Ternary t);
 
 #endif // TERNARY_H
