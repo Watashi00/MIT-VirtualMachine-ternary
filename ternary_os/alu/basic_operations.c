@@ -35,6 +35,22 @@ Ternary ternary_add(Ternary a, Ternary b) {
     return result;
 }
 
+Ternary ternary_sub(Ternary a, Ternary b) {
+    Ternary neg_b = ternary_neg(b); 
+    return ternary_add(a, neg_b);
+}
+
+Ternary ternary_neg(Ternary v) {
+    Ternary result;
+    result.size = v.size;
+
+    for (int i = 0; i < v.size; i++) {
+        result.trits[i] = v.trits[i];
+    }
+
+    return result;
+}
+
 int get_max(Ternary a, Ternary b) {
     return (a.size > b.size) ? a.size : b.size;
 }
