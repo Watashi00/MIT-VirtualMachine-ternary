@@ -13,27 +13,27 @@ TARGET = ternary_os
 ASSEMBLER_TARGET = assembler.exe
 ASSEMBLER_OBJ = tools/assembler/assembler.o isa/assembler.o
 
-all: $(TARGET)
+all: $(TARGET) $(ASSEMBLER_TARGET)
 
 $(TARGET): $(OBJ)
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJ)
 
-simulator/stack_lab.o: simulator/stack_lab.c
+simulator/stack_lab.o: simulator/stack_lab.c cpu/cpu.h isa/assembler.h
 	$(CC) $(CFLAGS) -c simulator/stack_lab.c -o simulator/stack_lab.o
 
-cpu/cpu.o: cpu/cpu.c
+cpu/cpu.o: cpu/cpu.c cpu/cpu.h
 	$(CC) $(CFLAGS) -c cpu/cpu.c -o cpu/cpu.o
 
-isa/ternary.o: isa/ternary.c
+isa/ternary.o: isa/ternary.c isa/ternary.h
 	$(CC) $(CFLAGS) -c isa/ternary.c -o isa/ternary.o
 
-isa/assembler.o: isa/assembler.c
+isa/assembler.o: isa/assembler.c isa/assembler.h isa/opcodes.h isa/ternary.h
 	$(CC) $(CFLAGS) -c isa/assembler.c -o isa/assembler.o
 
-tools/assembler/assembler.o: tools/assembler/assembler.c
+tools/assembler/assembler.o: tools/assembler/assembler.c isa/assembler.h
 	$(CC) $(CFLAGS) -c tools/assembler/assembler.c -o tools/assembler/assembler.o
 
-mm/stack_functions.o: mm/stack_functions.c
+mm/stack_functions.o: mm/stack_functions.c mm/stack.h
 	$(CC) $(CFLAGS) -c mm/stack_functions.c -o mm/stack_functions.o
 
 drivers/stdout.o: drivers/stdout.c
